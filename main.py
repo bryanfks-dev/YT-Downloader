@@ -53,12 +53,8 @@ def confirmRewriteFile(stream: Stream, type: lib.enumurates.MediaType) -> bool:
             print(
                 f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} Invalid input. Please enter Y or N"
             )
-
-        if ans == "Y":
-            return True
-
-        if ans == "N":
-            return False
+        else:
+            return ans == "Y"
 
 
 def downloadStream(stream: Stream, type: lib.enumurates.MediaType) -> None:
