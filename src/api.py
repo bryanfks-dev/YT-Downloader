@@ -1,13 +1,49 @@
 import lib
 import sys
+import os
 
 # Try-catch import required external libs
 try:
     from pytubefix import YouTube, Stream, Playlist
+    import ffmpeg
 except ImportError:
     print(
         f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} There are missing external libs. Please install using `pip install requirements.txt`"
     )
+
+
+def mergeVideoAudio(fileNameWithoutExt: str) -> None:
+    """
+    Function to merge the video and audio
+
+    :param fileNameWithoutExt: The file name without the extension
+    :return: None
+    """
+
+    videoPath: str = (
+        f"{lib.config['OUTPUT_FILE']['VIDEO']['PATH']}{fileNameWithoutExt}.{lib.config['OUTPUT_FILE']['VIDEO']['EXTENSION']}"
+    )
+
+    audioPath: str = (
+        f"{lib.config['OUTPUT_FILE']['AUDIO']['PATH']}/.temp/{fileNameWithoutExt}.{lib.config['OUTPUT_FILE']['AUDIO']['EXTENSION']}"
+    )
+
+    outputPath: str = (
+        f"{lib.config['OUTPUT_FILE']['VIDEO']['PATH']}{fileNameWithoutExt}_out.{lib.config['OUTPUT_FILE']['VIDEO']['EXTENSION']}"
+    )
+
+    video = ffmpeg.input(videoPath)
+    audio = ffmpeg.input(audioPath)
+
+    ffmpeg.output(
+        audio,
+        video,
+        outputPath,
+    ).run()
+
+    # Delete the files
+    os.remove(videoPath)
+    os.remove(audioPath)
 
 
 def constructFileName(fileNameWithoutExt: str, type: lib.enums.MediaType) -> str:
@@ -138,11 +174,19 @@ def downloadVideo(url: str = "") -> None:
         sys.exit(1)
 
     # Get the highest resolution stream
-    stream: Stream = yt.streams.filter(
-        progressive=True,
-    ).get_highest_resolution()
+    streamVideo: Stream = (
+        yt.streams.filter(adaptive=True).filter(mime_type="video/webm").first()
+    )
 
-    downloadStream(stream, lib.enums.MediaType.VIDEO)
+    streamAudio: Stream = (
+        yt.streams.filter(only_audio=True).order_by("abr").desc().first()
+    )
+
+    downloadStream(streamVideo, lib.enums.MediaType.VIDEO)
+
+    downloadStream(streamAudio, lib.enums.MediaType.AUDIO, ".temp")
+
+    mergeVideoAudio(lib.removeExtension(streamVideo.default_filename))
 
 
 def downloadAudio(url: str = "") -> None:
@@ -190,7 +234,7 @@ def downloadPlaylistVideo(playlist: Playlist) -> None:
             continue
 
         downloadStream(
-            video.streams.filter(progressive=True).get_highest_resolution(),
+            video.streams.get_highest_resolution(),
             lib.enums.MediaType.VIDEO,
             f"{playlist.title} {playlist.owner}",
         )
