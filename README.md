@@ -5,7 +5,7 @@ Simple Python API to download any youtube videos or playlists in any video or au
 ## Requirements
 - **Python** >= 3.7
 - **pip**
-- **ffmpeg** (https://www.ffmpeg.org/)[Check this out]
+- **ffmpeg** (Check this out)[https://www.ffmpeg.org/]
 
 ## Installation
 
