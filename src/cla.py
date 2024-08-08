@@ -16,17 +16,16 @@ def registerArgs() -> tuple[argparse.Namespace, list[str]]:
     parser.add_argument(
         "--video",
         "-v",
-        dest="youtube_url",
+        dest="youtube_video_url",
         nargs="+",
         help="Download youtube video as video format",
-        default="d",
         type=str,
     )
 
     parser.add_argument(
         "--audio",
         "-a",
-        dest="youtube_url",
+        dest="youtube_audio_url",
         nargs="+",
         help="Download youtube video as audio format",
         type=str,
@@ -55,8 +54,8 @@ def handleArgs(args: argparse.Namespace, unknown: list[str]) -> None:
             api.downloadVideo(URL)
 
     try:
-        if args.video:
-            for URL in args.video:
+        if args.youtube_video_url:
+            for URL in args.youtube_video_url:
                 # Check if the URL is a playlist
                 if "/playlist?list=" in URL:
                     api.downloadPlaylist(lib.MediaType.VIDEO, URL)
@@ -65,8 +64,8 @@ def handleArgs(args: argparse.Namespace, unknown: list[str]) -> None:
 
                 api.downloadVideo(URL)
 
-        if args.audio:
-            for URL in args.audio:
+        if args.youtube_audio_url:
+            for URL in args.youtube_audio_url:
                 # Check if the URL is a playlist
                 if "/playlist?list=" in URL:
                     api.downloadPlaylist(lib.MediaType.AUDIO, URL)
