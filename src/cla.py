@@ -80,7 +80,7 @@ def handleArgs(args: argparse.Namespace, unknown: list[str]) -> None:
 
 def run() -> None:
     """
-    Function to run the CLO
+    Function to run the CLA
 
     :return: None
     """
