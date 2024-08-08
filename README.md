@@ -38,7 +38,7 @@ git clone https://github.com/bryanfks-dev/YT-Downloader.git
 }
 ```
 
-3. **Install needed depedency**
+3. **Install needed depedencies**
 
 ```bash
 pip install requirements.txt
