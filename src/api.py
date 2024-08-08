@@ -1,12 +1,12 @@
 import lib
 import sys
 import os
+import subprocess
 from multiprocessing import Process
 
 # Try-catch import required external libs
 try:
     from pytubefix import YouTube, Stream, Playlist
-    import ffmpeg
 except ImportError:
     print(
         f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} There are missing external libs. Please install using `pip install requirements.txt`"
@@ -33,14 +33,7 @@ def mergeVideoAudio(fileNameWithoutExt: str) -> None:
         f"{lib.config['OUTPUT_FILE']['VIDEO']['PATH']}{fileNameWithoutExt}_out.{lib.config['OUTPUT_FILE']['VIDEO']['EXTENSION']}"
     )
 
-    video = ffmpeg.input(videoPath)
-    audio = ffmpeg.input(audioPath)
-
-    ffmpeg.output(
-        audio,
-        video,
-        outputPath,
-    ).run()
+    subprocess.run(f'ffmpeg -i "{videoPath}" -i "{audioPath}" "{outputPath}"')
 
     # Delete the files
     os.remove(videoPath)
@@ -59,7 +52,7 @@ def constructFileName(fileNameWithoutExt: str, type: lib.enums.MediaType) -> str
     return f"{fileNameWithoutExt}.{lib.config['OUTPUT_FILE'][type.value.upper()]['EXTENSION']}"
 
 
-def confirmRewriteFile(stream: Stream, type: lib.enums.MediaType) -> bool:
+def fileExist(stream: Stream, type: lib.enums.MediaType) -> bool:
     """
     Function to confirm if the user wants to rewrite the file
 
@@ -77,23 +70,7 @@ def confirmRewriteFile(stream: Stream, type: lib.enums.MediaType) -> bool:
     ):
         return True
 
-    while True:
-        # Ask the user if they want to rewrite the file
-        ans: str = str.upper(
-            input(
-                f"{lib.colors.WARNING}[WARNING]{lib.colors.ENDC} {type.value} with this title already exists in your saving directory.\nDo you want to rewrite the {type.value.lower()}? [Y/N]"
-            )
-        )
-
-        # Check if the input is valid
-        if ans != "Y" and ans != "N":
-            print(
-                f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} Invalid input. Please enter Y or N"
-            )
-
-            continue
-
-        return ans == "Y"
+    return False
 
 
 def downloadStream(
@@ -128,8 +105,8 @@ def downloadStream(
         # Create the directory if it does not exist
         lib.createDir(dir)
 
-        # Ask the user if they want to rewrite the file
-        if confirmRewriteFile(stream, type):
+        # Check if the file already exists
+        if fileExist(stream, type):
             # Get the file count
             fileCount: int = lib.getFileCount(
                 dir,
@@ -184,11 +161,11 @@ def downloadVideo(url: str = "") -> None:
     )
 
     processes: list[Process] = [
-        Process(target=downloadStream, args=(streamVideo, lib.enums.MediaType.VIDEO)),
         Process(
             target=downloadStream,
             args=(streamAudio, lib.enums.MediaType.AUDIO, ".temp"),
         ),
+        Process(target=downloadStream, args=(streamVideo, lib.enums.MediaType.VIDEO)),
     ]
 
     # Start the processes
