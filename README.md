@@ -16,7 +16,7 @@ git clone https://github.com/bryanfks-dev/YT-Downloader.git
 
 2. **Modify config.py as you like**
 
-```json
+```
 #/lib/config.py
 
 // Default config.py
