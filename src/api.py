@@ -1,6 +1,7 @@
 import lib
 import sys
 import os
+from multiprocessing import Process
 
 # Try-catch import required external libs
 try:
@@ -182,9 +183,21 @@ def downloadVideo(url: str = "") -> None:
         yt.streams.filter(only_audio=True).order_by("abr").desc().first()
     )
 
-    downloadStream(streamVideo, lib.enums.MediaType.VIDEO)
+    processes: list[Process] = [
+        Process(target=downloadStream, args=(streamVideo, lib.enums.MediaType.VIDEO)),
+        Process(
+            target=downloadStream,
+            args=(streamAudio, lib.enums.MediaType.AUDIO, ".temp"),
+        ),
+    ]
 
-    downloadStream(streamAudio, lib.enums.MediaType.AUDIO, ".temp")
+    # Start the processes
+    for process in processes:
+        process.start()
+
+    # Wait for the processes to finish
+    for process in processes:
+        process.join()
 
     mergeVideoAudio(lib.removeExtension(streamVideo.default_filename))
 

@@ -42,7 +42,7 @@ def handleArgs(args: argparse.Namespace, unknown: list[str]) -> None:
     :param unknown: The unknown arguments
     :return: None
     """
-    
+
     # Check if there are unknown arguments
     if len(unknown) > 0:
         # If there are unknown arguments, download as video
