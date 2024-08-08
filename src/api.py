@@ -148,15 +148,20 @@ def downloadVideo(url: str = "") -> None:
 
         sys.exit(1)
 
+    # Since pytube doesn't including the highest resolution video and
+    # audio in the same stream, we need to download them separately and
+    # merge them later using ffmpeg
+
     # Get the highest resolution stream
     streamVideo: Stream = (
         yt.streams.filter(adaptive=True).filter(mime_type="video/webm").first()
     )
 
+    # Get the highest resolution audio stream
     streamAudio: Stream = (
         yt.streams.filter(only_audio=True).order_by("abr").desc().first()
     )
-
+    
     processes: list[Process] = [
         Process(
             target=downloadStream,
