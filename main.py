@@ -17,7 +17,7 @@ def main() -> None:
 
         return
 
-    src.clo.run()
+    src.cla.run()
 
 
 if __name__ == "__main__":
