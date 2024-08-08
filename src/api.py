@@ -10,7 +10,7 @@ except ImportError:
     )
 
 
-def constructFileName(fileNameWithoutExt: str, type: lib.enumurates.MediaType) -> str:
+def constructFileName(fileNameWithoutExt: str, type: lib.enums.MediaType) -> str:
     """
     Function to construct the file name
 
@@ -22,7 +22,7 @@ def constructFileName(fileNameWithoutExt: str, type: lib.enumurates.MediaType) -
     return f"{fileNameWithoutExt}.{lib.config['OUTPUT_FILE'][type.value.upper()]['EXTENSION']}"
 
 
-def confirmRewriteFile(stream: Stream, type: lib.enumurates.MediaType) -> bool:
+def confirmRewriteFile(stream: Stream, type: lib.enums.MediaType) -> bool:
     """
     Function to confirm if the user wants to rewrite the file
 
@@ -60,7 +60,7 @@ def confirmRewriteFile(stream: Stream, type: lib.enumurates.MediaType) -> bool:
 
 
 def downloadStream(
-    stream: Stream, type: lib.enumurates.MediaType, suffixDir: str = ""
+    stream: Stream, type: lib.enums.MediaType, suffixDir: str = ""
 ) -> None:
     """
     Function to download the stream
@@ -140,7 +140,7 @@ def downloadVideo(url: str = "") -> None:
         progressive=True,
     ).get_highest_resolution()
 
-    downloadStream(stream, lib.enumurates.MediaType.VIDEO)
+    downloadStream(stream, lib.enums.MediaType.VIDEO)
 
 
 def downloadAudio(url: str = "") -> None:
@@ -170,7 +170,7 @@ def downloadAudio(url: str = "") -> None:
         .first()
     )
 
-    downloadStream(stream, lib.enumurates.MediaType.AUDIO)
+    downloadStream(stream, lib.enums.MediaType.AUDIO)
 
 
 def downloadPlaylistVideo(playlist: Playlist) -> None:
@@ -187,7 +187,7 @@ def downloadPlaylistVideo(playlist: Playlist) -> None:
 
         downloadStream(
             video.streams.filter(progressive=True).get_highest_resolution(),
-            lib.enumurates.MediaType.VIDEO,
+            lib.enums.MediaType.VIDEO,
             f"{playlist.title} {playlist.owner}",
         )
 
@@ -211,12 +211,12 @@ def downloadPlaylistAudio(playlist: Playlist) -> None:
             .order_by("abr")
             .desc()
             .first(),
-            lib.enumurates.MediaType.AUDIO,
+            lib.enums.MediaType.AUDIO,
             f"{playlist.title} {playlist.owner}",
         )
 
 
-def downloadPlaylist(type: lib.enumurates.MediaType, url: str = "") -> None:
+def downloadPlaylist(type: lib.enums.MediaType, url: str = "") -> None:
     """
     Function to download the playlist from the given URL
 

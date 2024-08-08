@@ -1,4 +1,4 @@
 from .colors import *
 from .config import config
-from .enumurates import *
+from .enums import *
 from .utils import *
