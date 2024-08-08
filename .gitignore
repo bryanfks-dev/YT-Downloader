@@ -1,4 +1,7 @@
-/.venv/
-**/__pycache__
-/videos/
-/audios/
+*
+
+!/lib
+!README.md
+!*.py
+!requirements.txt
+!.gitignore
