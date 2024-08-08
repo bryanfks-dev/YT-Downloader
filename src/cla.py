@@ -42,8 +42,11 @@ def handleArgs(args: argparse.Namespace, unknown: list[str]) -> None:
     :param unknown: The unknown arguments
     :return: None
     """
-
+    
+    # Check if there are unknown arguments
     if len(unknown) > 0:
+        # If there are unknown arguments, download as video
+        # as default argument flag
         for URL in unknown:
             # Check if the URL is a playlist
             if "/playlist?list=" in URL:
@@ -54,6 +57,7 @@ def handleArgs(args: argparse.Namespace, unknown: list[str]) -> None:
             api.downloadVideo(URL)
 
     try:
+        # Check if the video URL is provided
         if args.youtube_video_url:
             for URL in args.youtube_video_url:
                 # Check if the URL is a playlist
@@ -64,6 +68,7 @@ def handleArgs(args: argparse.Namespace, unknown: list[str]) -> None:
 
                 api.downloadVideo(URL)
 
+        # Check if the audio URL is provided
         if args.youtube_audio_url:
             for URL in args.youtube_audio_url:
                 # Check if the URL is a playlist
