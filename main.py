@@ -126,8 +126,10 @@ def downloadVideo(url: str = "") -> None:
     try:
         # Create a YouTube object
         yt: YouTube = YouTube(url)
-    except:
+    except Exception as e:
         print(f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} Connection error")
+
+        print(f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} {e}")
 
     # Get the highest resolution stream
     stream: Stream = (
@@ -155,8 +157,10 @@ def downloadAudio(url: str = "") -> None:
     try:
         # Create a YouTube object
         yt: YouTube = YouTube(url)
-    except:
+    except Exception as e:
         print(f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} Connection error")
+
+        print(f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} {e}")
 
     stream: Stream = (
         yt.streams.filter(
@@ -183,8 +187,7 @@ def sanitizeURL(url: str = "") -> str:
 
 def main() -> None:
     """Main driver to download the file"""
-    
-    
+
     return
 
 
