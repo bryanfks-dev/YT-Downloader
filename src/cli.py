@@ -69,8 +69,10 @@ def getChoice() -> tuple[int, list[str] | None]:
 
     try:
         URLs: list[str] = input(
-            "\nEnter URLs (Multiple URL seperated by space): "
+            f"\n{lib.colors.OKGREEN}Enter URLs (Multiple URL seperated by space): {lib.colors.ENDC}"
         ).split(" ")
+
+        print("\n", end="")
     except:
         sys.exit(1)
 
@@ -90,11 +92,23 @@ def handleChoice(choice: int, URLs: list[str]) -> None:
         # Download as video
         case 1:
             for URL in URLs:
+                # Check if the URL is a playlist
+                if "/playlist?list=" in URL:
+                    api.downloadPlaylist(lib.MediaType.VIDEO, URL)
+
+                    continue
+
                 api.downloadVideo(URL)
 
         # Download audio only
         case 2:
             for URL in URLs:
+                # Check if the URL is a playlist
+                if "/playlist?list=" in URL:
+                    api.downloadPlaylist(lib.MediaType.AUDIO, URL)
+
+                    continue
+
                 api.downloadAudio(URL)
 
         # Exit

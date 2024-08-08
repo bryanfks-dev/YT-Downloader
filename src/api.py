@@ -3,7 +3,7 @@ import sys
 
 # Try-catch import required external libs
 try:
-    from pytubefix import YouTube, Stream
+    from pytubefix import YouTube, Stream, Playlist
 except ImportError:
     print(
         f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} There are missing external libs. Please install using `pip install requirements.txt`"
@@ -59,14 +59,23 @@ def confirmRewriteFile(stream: Stream, type: lib.enumurates.MediaType) -> bool:
         return ans == "Y"
 
 
-def downloadStream(stream: Stream, type: lib.enumurates.MediaType) -> None:
+def downloadStream(
+    stream: Stream, type: lib.enumurates.MediaType, suffixDir: str = ""
+) -> None:
     """
     Function to download the stream
 
     :param stream: The stream to download
     :param type: The type of the stream
+    :param suffixDir: The suffix directory
     :return: None
     """
+
+    dir: str = lib.config["OUTPUT_FILE"][type.value.upper()]["PATH"]
+
+    # Add the playlist title to the directory
+    if not lib.utils.strIsEmpty(suffixDir):
+        dir += f"{suffixDir}/"
 
     # Get the file name
     fileName: str = constructFileName(
@@ -80,13 +89,13 @@ def downloadStream(stream: Stream, type: lib.enumurates.MediaType) -> None:
         )
 
         # Create the directory if it does not exist
-        lib.createDir(lib.config["OUTPUT_FILE"][type.value.upper()]["PATH"])
+        lib.createDir(dir)
 
         # Ask the user if they want to rewrite the file
         if confirmRewriteFile(stream, type):
             # Get the file count
             fileCount: int = lib.getFileCount(
-                lib.config["OUTPUT_FILE"][type.value.upper()]["PATH"],
+                dir,
                 lib.removeExtension(fileName),
             )
 
@@ -95,13 +104,10 @@ def downloadStream(stream: Stream, type: lib.enumurates.MediaType) -> None:
                 # Rename the file if it already exists
                 fileName = f"{lib.removeExtension(fileName)}({fileCount - 1}).{lib.config['OUTPUT_FILE'][type.value.upper()]['EXTENSION']}"
 
-        stream.download(
-            output_path=lib.config["OUTPUT_FILE"][type.value.upper()]["PATH"],
-            filename=fileName,
-        )
+        stream.download(output_path=dir, filename=fileName, max_retries=3)
 
         print(
-            f"{lib.colors.OKGREEN}[SUCCESS]{lib.colors.ENDC} {type.value} {lib.removeExtension(fileName)} downloaded successfully into {lib.config['OUTPUT_FILE'][type.value.upper()]['PATH']}"
+            f"{lib.colors.OKGREEN}[SUCCESS]{lib.colors.ENDC} {type.value} {lib.removeExtension(fileName)} downloaded successfully into {dir}"
         )
     except Exception as e:
         print(
@@ -165,6 +171,91 @@ def downloadAudio(url: str = "") -> None:
     )
 
     downloadStream(stream, lib.enumurates.MediaType.AUDIO)
+
+
+def downloadPlaylistVideo(playlist: Playlist) -> None:
+    """
+    Function to download the playlist as video from the given URL
+
+    :param playlist: The playlist object
+    :return: None
+    """
+
+    for video in playlist.videos:
+        if video.client.get_video(video.video_id).status == "Private":
+            continue
+
+        downloadStream(
+            video.streams.filter(progressive=True).get_highest_resolution(),
+            lib.enumurates.MediaType.VIDEO,
+            f"{playlist.title} {playlist.owner}",
+        )
+
+
+def downloadPlaylistAudio(playlist: Playlist) -> None:
+    """
+    Function to download the playlist audio only from the given URL
+
+    :param playlist: The playlist object
+    :return: None
+    """
+
+    for video in playlist.videos:
+        if video.client.get_video(video.video_id).status == "Private":
+            continue
+
+        downloadStream(
+            video.streams.filter(
+                only_audio=True,
+            )
+            .order_by("abr")
+            .desc()
+            .first(),
+            lib.enumurates.MediaType.AUDIO,
+            f"{playlist.title} {playlist.owner}",
+        )
+
+
+def downloadPlaylist(type: lib.enumurates.MediaType, url: str = "") -> None:
+    """
+    Function to download the playlist from the given URL
+
+    :param url: The URL of the playlist
+    :return: None
+    """
+
+    url = sanitizeURL(url)
+
+    try:
+        # Create a Playlist object
+        playlist: Playlist = Playlist(url)
+    except Exception as e:
+        print(f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} Connection error")
+
+        print(f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} {e}")
+
+    # Check if the playlist is private or not available or doesn't have any video
+    try:
+        if playlist.length == 0:
+            print(
+                f"{lib.colors.OKCYAN}[INFO]{lib.colors.ENDC} No video available in the playlist"
+            )
+
+            return
+    except:
+        print(
+            f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} Playlist is either private or not available"
+        )
+
+        return
+
+    # Download the playlist based on the type
+    if type == lib.MediaType.VIDEO:
+        downloadPlaylistVideo(playlist)
+
+        return
+
+    downloadPlaylistAudio(playlist)
 
 
 def sanitizeURL(url: str = "") -> str:
