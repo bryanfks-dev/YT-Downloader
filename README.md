@@ -19,7 +19,6 @@ git clone https://github.com/bryanfks-dev/YT-Downloader.git
 ```
 #/lib/config.py
 
-// Default config.py
 {
     "OUTPUT_FILE": {
         "VIDEO": {
