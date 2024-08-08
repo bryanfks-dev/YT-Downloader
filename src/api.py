@@ -65,12 +65,9 @@ def fileExist(stream: Stream, type: lib.enums.MediaType) -> bool:
         lib.removeExtension(stream.default_filename), type
     )
 
-    if not stream.exists_at_path(
+    return stream.exists_at_path(
         f"{lib.config['OUTPUT_FILE'][type.value.upper()]['PATH']}/{fileName}"
-    ):
-        return True
-
-    return False
+    )
 
 
 def downloadStream(
