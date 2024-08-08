@@ -131,9 +131,11 @@ def downloadVideo(url: str = "") -> None:
         # Create a YouTube object
         yt: YouTube = YouTube(url)
     except Exception as e:
-        print(f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} Connection error")
+        print(f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} Invalid youtube link")
 
         print(f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} {e}")
+
+        sys.exit(1)
 
     # Get the highest resolution stream
     stream: Stream = yt.streams.filter(
@@ -157,9 +159,11 @@ def downloadAudio(url: str = "") -> None:
         # Create a YouTube object
         yt: YouTube = YouTube(url)
     except Exception as e:
-        print(f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} Connection error")
+        print(f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} Invalid youtube link")
 
         print(f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} {e}")
+
+        sys.exit(1)
 
     stream: Stream = (
         yt.streams.filter(
@@ -230,9 +234,11 @@ def downloadPlaylist(type: lib.enums.MediaType, url: str = "") -> None:
         # Create a Playlist object
         playlist: Playlist = Playlist(url)
     except Exception as e:
-        print(f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} Connection error")
+        print(f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} Invalid youtube link")
 
         print(f"{lib.colors.FAIL}[ERROR]{lib.colors.ENDC} {e}")
+
+        sys.exit(1)
 
     # Check if the playlist is private or not available or doesn't have any video
     try:

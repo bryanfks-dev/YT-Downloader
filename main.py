@@ -1,10 +1,23 @@
 import src
+import sys
 
 
 def main() -> None:
-    """Main driver to download the file"""
+    """
+    Main driver to download the file
 
-    src.cli.run()
+    :return: None
+    """
+
+    args: list[str] = sys.argv[1:]
+
+    # Check if there are no arguments
+    if len(args) == 0:
+        src.cli.run()
+
+        return
+
+    src.clo.run()
 
 
 if __name__ == "__main__":
